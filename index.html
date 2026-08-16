@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Warden — The all-in-one Discord bot</title>
+<meta name="description" content="Warden is a fast, all-in-one Discord bot for moderation, leveling, economy, fun and more. 213 commands, 24/7, free." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#07070d;
+    --bg2:#0c0c16;
+    --card:rgba(255,255,255,.04);
+    --card-brd:rgba(255,255,255,.09);
+    --text:#eef0ff;
+    --muted:#9aa0c0;
+    --accent:#8b5cf6;
+    --accent2:#3b82f6;
+    --line:rgba(255,255,255,.08);
+    --grad:linear-gradient(120deg,#8b5cf6,#3b82f6 55%,#22d3ee);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .gradient-text{
+    background:var(--grad);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .container{max-width:1120px;margin:0 auto;padding:0 22px}
+  /* ---- background glow ---- */
+  .bg-orbs{position:fixed;inset:0;z-index:-1;overflow:hidden}
+  .bg-orbs span{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;animation:float 16s ease-in-out infinite}
+  .bg-orbs .o1{width:520px;height:520px;background:#7c5cff;top:-160px;left:-120px}
+  .bg-orbs .o2{width:460px;height:460px;background:#2f6bff;bottom:-180px;right:-100px;animation-delay:-6s}
+  .bg-orbs .o3{width:360px;height:360px;background:#22d3ee;top:40%;left:60%;opacity:.28;animation-delay:-3s}
+  @keyframes float{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-40px) translateX(30px)}}
+
+  /* ---- nav ---- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;
+    background:rgba(7,7,13,.6);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--line);box-shadow:0 0 16px rgba(124,130,232,.5)}
+  .nav-links{display:flex;gap:26px;font-size:.92rem;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{display:flex;gap:12px;align-items:center}
+
+  /* ---- buttons ---- */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:11px;font-weight:600;font-size:.92rem;border:1px solid transparent;cursor:pointer;transition:.18s transform,.18s box-shadow,.18s background}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 28px rgba(99,102,241,.45)}
+  .btn-ghost{background:var(--card);border-color:var(--card-brd);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--accent)}
+
+  /* ---- hero ---- */
+  .hero{text-align:center;padding:84px 0 60px;position:relative}
+  .hero .pfp{
+    width:128px;height:128px;border-radius:50%;object-fit:cover;
+    border:2px solid transparent;
+    background:var(--grad);padding:3px;margin-bottom:22px;
+    box-shadow:0 0 50px rgba(124,130,232,.45);
+  }
+  .wordmark{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;font-size:clamp(56px,12vw,132px);
+    line-height:.95;letter-spacing:-2px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 6px 30px rgba(124,130,232,.35));
+  }
+  .tagline{max-width:620px;margin:18px auto 0;color:var(--muted);font-size:1.12rem}
+  .hero-cta{display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+
+  /* ---- stats ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:54px 0}
+  .stat{background:var(--card);border:1px solid var(--card-brd);border-radius:16px;padding:22px;text-align:center}
+  .stat .num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .lbl{color:var(--muted);font-size:.86rem;margin-top:4px}
+
+  /* ---- sections ---- */
+  section{padding:60px 0}
+  .sec-head{text-align:center;margin-bottom:38px}
+  .sec-head h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700}
+  .sec-head p{color:var(--muted);margin-top:10px}
+
+  .grid{display:grid;gap:18px}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--card);border:1px solid var(--card-brd);border-radius:18px;padding:26px;transition:.2s transform,.2s border-color}
+  .card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5)}
+  .card .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--grad);font-size:22px;margin-bottom:14px}
+  .card h3{font-size:1.15rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+
+  /* ---- commands showcase ---- */
+  .cmd-search{display:flex;gap:12px;max-width:560px;margin:0 auto 28px}
+  .cmd-search input{flex:1;padding:13px 16px;border-radius:12px;background:var(--card);border:1px solid var(--card-brd);color:var(--text);font-size:.95rem;outline:none}
+  .cmd-search input:focus{border-color:var(--accent)}
+  .cat{margin-bottom:26px}
+  .cat h3{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .cat h3 .dot{width:10px;height:10px;border-radius:50%;background:var(--grad)}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85rem;background:var(--card);border:1px solid var(--card-brd);padding:7px 13px;border-radius:9px;color:#cdd2ff}
+  .chip:hover{border-color:var(--accent);color:#fff}
+
+  /* ---- cta band ---- */
+  .band{text-align:center;background:var(--card);border:1px solid var(--card-brd);border-radius:24px;padding:54px 24px;margin:30px 0}
+  .band h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,40px)}
+  .band p{color:var(--muted);margin:12px 0 26px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:.88rem;text-align:center}
+  footer a{color:var(--accent)}
+
+  @media(max-width:860px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .grid-3,.grid-2{grid-template-columns:1fr}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="bg-orbs"><span class="o1"></span><span class="o2"></span><span class="o3"></span></div>
+
+<nav id="nav">
+  <a class="brand" href="#top">
+    <img src="/warden-pfp.jpg" alt="Warden" />
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#commands">Commands</a>
+    <a href="#stats">Stats</a>
+  </div>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="/dashboard">Dashboard</a>
+    <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1538494017912705134&scope=bot%20applications.commands&permissions=8">Add to Discord</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <img class="pfp" src="/warden-pfp.jpg" alt="Warden" />
+  <div class="wordmark">Warden</div>
+  <p class="tagline">The all-in-one Discord bot for moderation, levels, economy, fun and everything in between — <span class="gradient-text">213 commands</span>, running 24/7.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1538494017912705134&scope=bot%20applications.commands&permissions=8">Add to Discord</a>
+    <a class="btn btn-ghost" href="/dashboard">Open Dashboard →</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats" id="stats">
+    <div class="stat"><div class="num">213</div><div class="lbl">Commands</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="lbl">Uptime</div></div>
+    <div class="stat"><div class="num">&lt;40ms</div><div class="lbl">Avg. latency</div></div>
+    <div class="stat"><div class="num">Free</div><div class="lbl">To use</div></div>
+  </div>
+</div>
+
+<section id="features">
+  <div class="container">
+    <div class="sec-head">
+      <h2>Everything your server needs</h2>
+      <p>Powerful modules, zero setup. Warden grows with your community.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card"><div class="ico">🛡️</div><h3>Moderation</h3><p>Kick, ban, timeout, warn, mute, lock channels and purge messages — with full audit logging.</p></div>
+      <div class="card"><div class="ico">📈</div><h3>Leveling</h3><p>XP, ranks, role rewards and leaderboards that keep members engaged and active.</p></div>
+      <div class="card"><div class="ico">💰</div><h3>Economy</h3><p>Currency, daily rewards, shops, gambling and a thriving server economy.</p></div>
+      <div class="card"><div class="ico">🎉</div><h3>Fun</h3><p>Games, memes, trivia, roasts, memes and 25+ ways to spice up the chat.</p></div>
+      <div class="card"><div class="ico">🧰</div><h3>Utility</h3><p>Polls, reminders, embeds, stickers, translations and everyday tools.</p></div>
+      <div class="card"><div class="ico">🔐</div><h3>Security</h3><p>AutoMod, anti-raid, link filters and invite tracking to keep bad actors out.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="commands">
+  <div class="container">
+    <div class="sec-head">
+      <h2>213 commands, organized</h2>
+      <p>Browse by category. Run any of them live from the Dashboard.</p>
+    </div>
+    <div class="cmd-search">
+      <input id="cmdFilter" type="text" placeholder="Filter commands… (e.g. ban, level, remind)" />
+    </div>
+    <div id="cmdList">
+      <div class="cat"><h3><span class="dot"></span>Moderation</h3><div class="chips">
+        <span class="chip">,ban</span><span class="chip">,kick</span><span class="chip">,timeout</span><span class="chip">,warn</span><span class="chip">,mute</span><span class="chip">,unmute</span><span class="chip">,lock</span><span class="chip">,unlock</span><span class="chip">,purge</span><span class="chip">,nuke</span><span class="chip">,slowmode</span><span class="chip">,softban</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Leveling</h3><div class="chips">
+        <span class="chip">,rank</span><span class="chip">,leaderboard</span><span class="chip">,givexp</span><span class="chip">,setlevel</span><span class="chip">,levelconfig</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Economy</h3><div class="chips">
+        <span class="chip">,balance</span><span class="chip">,daily</span><span class="chip">,work</span><span class="chip">,shop</span><span class="chip">,buy</span><span class="chip">,gamble</span><span class="chip">,pay</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Fun</h3><div class="chips">
+        <span class="chip">,8ball</span><span class="chip">,meme</span><span class="chip">,trivia</span><span class="chip">,roast</span><span class="chip">,joke</span><span class="chip">,coinflip</span><span class="chip">,ship</span><span class="chip">,parrot</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Utility</h3><div class="chips">
+        <span class="chip">,ping</span><span class="chip">,remind</span><span class="chip">,poll</span><span class="chip">,embed</span><span class="chip">,translate</span><span class="chip">,qr</span><span class="chip">,weather</span><span class="chip">,calculator</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Server</h3><div class="chips">
+        <span class="chip">,serverinfo</span><span class="chip">,guildstats</span><span class="chip">,roles</span><span class="chip">,welcome</span><span class="chip">,autorole</span><span class="chip">,boosterslist</span><span class="chip">,invitelist</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Members & Info</h3><div class="chips">
+        <span class="chip">,userinfo</span><span class="chip">,avatar</span><span class="chip">,whois</span><span class="chip">,banner</span><span class="chip">,roleshow</span><span class="chip">,permissions</span><span class="chip">,joined</span>
+      </div></div>
+      <div class="cat"><h3><span class="dot"></span>Security</h3><div class="chips">
+        <span class="chip">,automod</span><span class="chip">,antiraid</span><span class="chip">,filter</span><span class="chip">,lockdown</span><span class="chip">,raidmode</span>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="band">
+    <h2>Ready to level up your server?</h2>
+    <p>Add Warden in seconds — no credit card, no setup. Or explore everything from the live Dashboard.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1538494017912705134&scope=bot%20applications.commands&permissions=8">Add to Discord</a>
+      <a class="btn btn-ghost" href="/dashboard">Open Dashboard →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Warden — made for Discord. Not affiliated with Discord Inc. · <a href="/dashboard">Dashboard</a> · <a href="https://discord.com/oauth2/authorize?client_id=1538494017912705134&scope=bot%20applications.commands&permissions=8">Invite</a>
+</footer>
+
+<script>
+  const f = document.getElementById('cmdFilter');
+  const cats = document.querySelectorAll('#cmdList .cat');
+  f.addEventListener('input', () => {
+    const q = f.value.trim().toLowerCase();
+    cats.forEach(cat => {
+      const chips = cat.querySelectorAll('.chip');
+      let any = false;
+      chips.forEach(ch => {
+        const match = ch.textContent.toLowerCase().includes(q);
+        ch.style.display = match ? '' : 'none';
+        if (match) any = true;
+      });
+      cat.style.display = (q === '' || any) ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
